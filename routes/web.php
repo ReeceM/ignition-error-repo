@@ -1,6 +1,12 @@
 <?php
 
+use App\Http\Controllers\WithJsonController;
+use App\Http\Controllers\WithModelController;
+use App\Http\Controllers\WithModelJsonController;
+use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -21,9 +27,20 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'user' => new UserResource(new User),
     ]);
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard');
+Route::get('without-inertia', function () {
+    tenant_route();
+});
+
+Route::get('with-default-resource', function() {
+    return JsonResource::make([
+        'resource' => tenant_route(),
+    ]);
+});
+
+Route::get('with-resource', WithJsonController::class);
+Route::get('with-model', WithModelController::class);
+Route::get('with-model-json', WithModelJsonController::class);
